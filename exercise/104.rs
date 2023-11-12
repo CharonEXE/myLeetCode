@@ -19,39 +19,17 @@
 
 use std::rc::Rc;
 use std::cell::RefCell;
-use std::cmp::Ordering;
+use std::cmp;
 impl Solution {
     pub fn max_depth(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
-        
-        let mut depth: i32 = 0;
 
-        if root == None {
-            return depth;
-        }
-
-        match Rc::try_unwrap(root.unwrap())
-        {
-            Ok(thing) => {
-                depth += 1;
-                let mut depth_right: i32 = 0;
-                let mut depth_left: i32 = 0;
-                let current = thing.into_inner();
-                
-                if current.right != None {
-                    depth_right = Solution::max_depth(current.right);
-                }
-                if current.left != None {
-                    depth_left = Solution::max_depth(current.left);
-                }
-
-                match depth_right.cmp(&depth_left){
-                    Ordering::Less => return (depth + depth_left),
-                    _ => return (depth + depth_right),
-                }
-            },
-            _ => return depth,
-        };
-
-        return depth;
+        root.map_or(0, |node| {
+            let mut depth: i32 = 0;
+            return (
+                cmp::max(
+                    Solution::max_depth(node.borrow().left.clone()), 
+                    Solution::max_depth(node.borrow().right.clone())
+                    )) + 1;
+        })
     }
 }
